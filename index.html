@@ -3,184 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billions – Investment Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>Billions Game - Stock Market Simulator</title>
     <style>
-        :root {
-            --bg: #0a0c10;
-            --surface: #111318;
-            --surface2: #181c24;
-            --border: #2a2f3d;
-            --border2: #3a4158;
-            --text: #e8eaf0;
-            --muted: #7a8099;
-            --accent: #00e5a0;
-            --accent2: #00b87d;
-            --danger: #ff4d6a;
-            --warn: #f5a623;
-            --info: #4d9fff;
-            --gold: #ffd166;
-        }
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a202c 100%);
+            color: #e2e8f0;
             min-height: 100vh;
-            font-size: 14px;
+            overflow-x: hidden;
         }
 
-        /* ===== SCREENS ===== */
-        .screen {
-            display: none;
-            min-height: 100vh;
+        /* ===== COMMON STYLES ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .screen.active {
-            display: flex;
-            flex-direction: column;
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
         }
 
-        /* ===== LOGIN/WELCOME ===== */
-        #loginScreen {
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            background: radial-gradient(ellipse at 50% 30%, #001a0f 0%, var(--bg) 70%);
-        }
-
-        .logo-ring {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            box-shadow: 0 0 40px rgba(0, 229, 160, 0.15);
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 30px rgba(0, 229, 160, 0.1); }
-            50% { box-shadow: 0 0 60px rgba(0, 229, 160, 0.25); }
-        }
-
-        .logo-ring svg {
-            width: 44px;
-            height: 44px;
-        }
-
-        h1.game-title {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: var(--text);
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        h1.game-title span {
-            color: var(--accent);
-        }
-
-        .tagline {
-            color: var(--muted);
-            font-size: 1rem;
-            margin-bottom: 2.5rem;
-            font-weight: 300;
-            text-align: center;
-        }
-
-        .login-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-            width: 100%;
-            max-width: 400px;
-            text-align: left;
-        }
-
-        .login-card h2 {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 400;
-            color: var(--accent);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 1.2rem;
-        }
-
-        .form-row {
-            margin-bottom: 1rem;
-        }
-
-        .form-row label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--muted);
-            margin-bottom: 0.4rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .form-row input,
-        .form-row select {
-            width: 100%;
-            background: var(--surface2);
-            border: 1px solid var(--border);
+        .btn {
+            padding: 10px 20px;
+            border: none;
             border-radius: 8px;
-            color: var(--text);
-            font-family: 'DM Mono', monospace;
-            font-size: 0.95rem;
-            padding: 0.65rem 0.9rem;
-            outline: none;
-            transition: border-color 0.15s;
-        }
-
-        .form-row input:focus,
-        .form-row select:focus {
-            border-color: var(--accent);
-        }
-
-        .err-msg {
-            color: var(--danger);
-            font-size: 0.8rem;
-            margin-top: 0.75rem;
-            display: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-primary {
-            width: 100%;
-            background: var(--accent);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Unbounded', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            padding: 0.8rem;
-            cursor: pointer;
-            margin-top: 1.2rem;
-            transition: background 0.15s, transform 0.1s;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-            background: var(--accent2);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
         }
 
         .btn-primary:disabled {
@@ -188,1017 +62,915 @@
             cursor: not-allowed;
         }
 
-        /* ===== GAME HEADER ===== */
-        .game-header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 0.8rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
+        .btn-secondary {
+            background: rgba(100, 116, 139, 0.5);
+            color: #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.3);
         }
 
-        .header-logo {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--accent);
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(100, 116, 139, 0.8);
         }
 
-        .team-badge {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.8rem;
-            color: var(--muted);
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.7);
+            color: white;
         }
 
-        .team-badge span {
-            color: var(--text);
-            font-weight: 500;
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(239, 68, 68, 1);
         }
 
-        .round-badge {
-            background: var(--surface2);
-            border: 1px solid var(--accent);
-            border-radius: 6px;
-            padding: 0.3rem 0.8rem;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.8rem;
-            color: var(--accent);
-        }
-
-        .header-spacer {
-            flex: 1;
-        }
-
-        .btn-sm {
-            background: transparent;
-            border: 1px solid var(--border2);
-            border-radius: 6px;
-            color: var(--muted);
-            font-size: 0.75rem;
-            padding: 0.35rem 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-sm:hover {
-            border-color: var(--text);
-            color: var(--text);
-        }
-
-        .btn-sm.danger:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        /* ===== STAT STRIP ===== */
-        .stat-strip {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1px;
-            background: var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .stat-card {
-            background: var(--surface);
-            padding: 0.9rem 1.25rem;
-        }
-
-        .stat-label {
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted);
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-value {
-            font-family: 'DM Mono', monospace;
-            font-size: 1.15rem;
-            font-weight: 500;
-        }
-
-        .stat-value.green {
-            color: var(--accent);
-        }
-
-        .stat-value.red {
-            color: var(--danger);
-        }
-
-        .stat-value.gold {
-            color: var(--gold);
-        }
-
-        /* ===== MAIN LAYOUT ===== */
-        .game-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .game-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1.25rem 1.5rem;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        @media (max-width: 1024px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .section-title {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 0.7rem;
-            font-weight: 400;
-            color: var(--muted);
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-bottom: 0.75rem;
-        }
-
-        /* ===== PORTFOLIO TABLE ===== */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.82rem;
-        }
-
-        table th {
-            background: var(--surface2);
-            padding: 0.55rem 0.75rem;
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted);
-            text-align: right;
-            border-bottom: 1px solid var(--border);
-            font-weight: 500;
-        }
-
-        table th:first-child {
-            text-align: left;
-        }
-
-        table td {
-            padding: 0.55rem 0.75rem;
-            border-bottom: 1px solid var(--border);
-            text-align: right;
-            vertical-align: middle;
-        }
-
-        table td:first-child {
-            text-align: left;
-            color: var(--text);
-        }
-
-        table tr:last-child td {
-            border-bottom: none;
-        }
-
-        table tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        /* ===== FORMS ===== */
         .input-group {
-            margin-bottom: 1rem;
+            margin-bottom: 16px;
         }
 
         .input-group label {
             display: block;
-            font-size: 0.75rem;
-            color: var(--muted);
-            margin-bottom: 0.4rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #cbd5e1;
         }
 
         .input-group input,
         .input-group select {
             width: 100%;
-            background: var(--surface2);
-            border: 1px solid var(--border);
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.3);
             border-radius: 8px;
-            color: var(--text);
-            font-family: 'DM Mono', monospace;
-            font-size: 0.9rem;
-            padding: 0.65rem 0.9rem;
-            outline: none;
-            transition: border-color 0.15s;
+            color: #e2e8f0;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
         }
 
         .input-group input:focus,
         .input-group select:focus {
-            border-color: var(--accent);
-        }
-
-        .trade-form {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .trade-form button {
-            grid-column: 1 / -1;
+            outline: none;
+            border-color: #3b82f6;
         }
 
         .error {
-            color: var(--danger);
-            font-size: 0.8rem;
-            margin-top: 0.75rem;
-            padding: 0.75rem;
-            background: rgba(255, 77, 106, 0.1);
-            border-left: 3px solid var(--danger);
-            border-radius: 4px;
-            display: none;
-        }
-
-        .error.show {
-            display: block;
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 6px;
+            padding: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #ef4444;
         }
 
         .success {
-            color: var(--accent);
-            font-size: 0.8rem;
-            margin-top: 0.75rem;
-            padding: 0.75rem;
-            background: rgba(0, 229, 160, 0.1);
-            border-left: 3px solid var(--accent);
-            border-radius: 4px;
-            display: none;
-        }
-
-        .success.show {
-            display: block;
-        }
-
-        .btn-danger {
-            background: rgba(255, 77, 106, 0.2);
-            color: var(--danger);
-            border: 1px solid var(--danger);
+            color: #10b981;
+            font-size: 13px;
+            margin-top: 6px;
+            padding: 8px;
+            background: rgba(16, 185, 129, 0.1);
             border-radius: 6px;
-            font-size: 0.72rem;
-            padding: 0.4rem 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        /* ===== TRADES TABLE ===== */
-        .trades-table-wrap {
-            margin-top: 1rem;
-        }
-
-        .stat-box {
-            background: var(--surface2);
-            padding: 0.9rem 1rem;
-            border-radius: 8px;
-            margin-top: 0.75rem;
-        }
-
-        .stat-box .stat-label {
-            font-size: 0.68rem;
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-box .stat-value {
-            font-size: 1.1rem;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .button-group button {
-            flex: 1;
-        }
-
-        /* ===== FOOTER/ACTIONS ===== */
-        .action-bar {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 0.85rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .spacer {
-            flex: 1;
+            border-left: 3px solid #10b981;
         }
 
         .loading {
             display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid rgba(0, 229, 160, 0.3);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
             border-radius: 50%;
-            border-top-color: var(--accent);
+            border-top-color: #3b82f6;
             animation: spin 0.8s linear infinite;
-            margin-right: 6px;
+            margin-right: 8px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        table tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #f1f5f9;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.5);
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-top: 4px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        /* ===== LOGIN SCREEN ===== */
+        #loginScreen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .login-card {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo h1 {
+            font-size: 32px;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .login-logo p {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        /* ===== GAME SCREEN ===== */
+        #gameScreen {
+            display: none;
+        }
+
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 16px 0;
+            margin-bottom: 24px;
+            sticky: top 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-label {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .header-stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-top: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .grid-full {
+            grid-column: 1 / -1;
+        }
+
         /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            z-index: 100;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
         }
 
-        .modal.open {
+        .modal.active {
             display: flex;
         }
 
         .modal-content {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            max-width: 400px;
-            width: 100%;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
-        .modal-content h3 {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 0.9rem;
-            color: var(--text);
-            margin-bottom: 0.75rem;
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #f1f5f9;
         }
 
-        .modal-content p {
-            color: var(--muted);
-            font-size: 0.85rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .modal-buttons button {
-            flex: 1;
-            padding: 0.65rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            border: none;
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #94a3b8;
             cursor: pointer;
-            transition: all 0.15s;
+            line-height: 1;
         }
 
-        .btn-cancel {
-            background: var(--surface2);
-            color: var(--muted);
-            border: 1px solid var(--border);
+        .modal-close:hover {
+            color: #e2e8f0;
         }
 
-        .btn-cancel:hover {
-            background: var(--border);
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .header-stats {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .login-card {
+                padding: 24px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            table th,
+            table td {
+                padding: 8px;
+            }
         }
 
-        .btn-confirm {
-            background: var(--accent);
-            color: #000;
-            font-weight: 600;
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: flex-end;
         }
 
-        .btn-confirm:hover {
-            background: var(--accent2);
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
 
         .badge {
             display: inline-block;
-            background: var(--accent);
-            color: #000;
-            padding: 0.2rem 0.5rem;
-            border-radius: 3px;
-            font-size: 0.68rem;
+            padding: 4px 8px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-radius: 4px;
+            font-size: 12px;
             font-weight: 600;
-            margin-left: 0.5rem;
-        }
-
-        /* ===== LEADERBOARD ===== */
-        .leaderboard-section {
-            margin-top: 1.5rem;
-        }
-
-        .leaderboard-update {
-            font-size: 0.75rem;
-            color: var(--muted);
-            margin-top: 0.75rem;
-            text-align: right;
-        }
-
-        @media (max-width: 768px) {
-            .trade-form {
-                grid-template-columns: 1fr;
-            }
-
-            .stat-strip {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .game-content {
-                padding: 1rem;
-            }
-
-            .game-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .header-spacer {
-                display: none;
-            }
         }
     </style>
 </head>
 <body>
-
-<!-- ===== LOGIN SCREEN ===== -->
-<div id="loginScreen" class="screen active">
-    <div class="logo-ring">
-        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="22" cy="22" r="20" stroke="#00e5a0" stroke-width="1.5"/>
-            <path d="M14 28 L22 14 L30 28" stroke="#00e5a0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M16.5 23 H27.5" stroke="#00e5a0" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-    </div>
-    <h1 class="game-title">Billions<span>.</span></h1>
-    <p class="tagline">Manage a $1M portfolio across 21 assets. Outsmart the market.</p>
-
-    <div class="login-card">
-        <h2>Login</h2>
-        <form id="loginForm">
-            <div class="form-row">
-                <label>Team ID</label>
-                <input type="text" id="teamId" placeholder="e.g., TEAM-000001" autocomplete="off" required>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">
+                <h1>💰 BILLIONS</h1>
+                <p>Stock Market Simulator</p>
             </div>
-            <div class="form-row">
-                <label>Password</label>
-                <input type="password" id="teamPassword" placeholder="Enter your password" required>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="teamId">Team ID</label>
+                    <input type="text" id="teamId" placeholder="e.g., TEAM-000001" required>
+                </div>
+                <div class="input-group">
+                    <label for="teamPassword">Password</label>
+                    <input type="password" id="teamPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <span id="loginBtn">LOGIN</span>
+                </button>
+                <div id="loginError"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="gameScreen">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h2 id="teamName">Team Name</h2>
+                </div>
+                <div class="header-stats">
+                    <div class="header-stat">
+                        <div class="header-stat-label">Round</div>
+                        <div class="header-stat-value" id="currentRound">1/5</div>
+                    </div>
+                    <div class="header-stat">
+                        <div class="header-stat-label">Portfolio Value</div>
+                        <div class="header-stat-value" id="portfolioValue">$0</div>
+                    </div>
+                    <div class="header-stat">
+                        <div class="header-stat-label">Cash Balance</div>
+                        <div class="header-stat-value" id="cashBalance">$0</div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-secondary" onclick="app.logout()">Logout</button>
+                </div>
             </div>
-            <div class="err-msg" id="loginError"></div>
-            <button type="submit" class="btn-primary" id="loginBtn">LOGIN →</button>
-        </form>
-    </div>
-</div>
-
-<!-- ===== GAME SCREEN ===== -->
-<div id="gameScreen" class="screen">
-    
-    <div class="game-header">
-        <span class="header-logo">B$</span>
-        <span class="team-badge">Team: <span id="teamName">–</span></span>
-        <span class="round-badge" id="headerRound">R1</span>
-        <span class="header-spacer"></span>
-        <button class="btn-sm" onclick="app.logout()">Logout</button>
-    </div>
-
-    
-    <div class="stat-strip">
-        <div class="stat-card">
-            <div class="stat-label">Portfolio Value</div>
-            <div class="stat-value gold" id="statPortval">$0</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-label">Cash Available</div>
-            <div class="stat-value green" id="statCash">$0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Current Round</div>
-            <div class="stat-value" id="currentRound">1/20</div>
-        </div>
-    </div>
 
-    <div class="game-body">
-        <div class="game-content">
-            
+        <!-- MAIN CONTENT -->
+        <div class="container">
+            <!-- PORTFOLIO & TRADING -->
             <div class="grid-2">
                 <!-- PORTFOLIO -->
-                <div class="card">
-                    <div class="section-title">📊 Portfolio</div>
-                    <table id="portfolioTable">
-                        <thead>
-                            <tr>
-                                <th style="text-align:left">Asset</th>
-                                <th>Qty</th>
-                                <th>Price</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                <div>
+                    <div class="card">
+                        <div class="section-title">📊 Portfolio</div>
+                        <div class="stat-box">
+                            <div class="stat-label">Total Value</div>
+                            <div class="stat-value" id="totalValue">$0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Cash Balance</div>
+                            <div class="stat-value" id="cashValue">$0</div>
+                        </div>
+                        <table id="portfolioTable" style="margin-top: 16px;">
+                            <thead>
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- TRADING PANEL -->
-                <div class="card">
-                    <div class="section-title">💼 Place Trade</div>
-                    <form id="tradeForm" onsubmit="app.addTrade(event)">
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label>Asset</label>
-                                <select id="assetId" required>
-                                    <option value="">Select Asset</option>
-                                </select>
+                <div>
+                    <div class="card">
+                        <div class="section-title">💼 Place Trades</div>
+                        <form id="tradeForm" onsubmit="app.addTrade(event)">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="assetId">Asset</label>
+                                    <select id="assetId" required>
+                                        <option value="">Select Asset</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="action">Action</label>
+                                    <select id="action" required>
+                                        <option value="BUY">BUY</option>
+                                        <option value="SELL">SELL</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="quantity">Qty</label>
+                                    <input type="number" id="quantity" min="1" placeholder="10" required>
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label>Action</label>
-                                <select id="action" required>
-                                    <option value="BUY">BUY</option>
-                                    <option value="SELL">SELL</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label>Qty</label>
-                                <input type="number" id="quantity" min="1" placeholder="10" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-primary">Add Trade</button>
-                    </form>
-                    <div id="tradeError" class="error"></div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                Add Trade
+                            </button>
+                        </form>
+                        <div id="tradeError"></div>
 
-                    <!-- PENDING TRADES -->
-                    <div class="trades-table-wrap" style="margin-top: 1.5rem;">
-                        <div class="section-title">Pending Trades</div>
-                        <table id="tradesTable">
-                            <thead>
-                                <tr>
-                                    <th style="text-align:left">Asset</th>
-                                    <th>Action</th>
-                                    <th>Qty</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="tradesBody">
-                            </tbody>
-                        </table>
-                        <div class="stat-box">
-                            <div class="stat-label">Net Cash After Trades</div>
-                            <div class="stat-value" id="netCash">$0</div>
-                        </div>
-                        <div class="button-group">
-                            <button class="btn-primary" onclick="app.submitTrades()">Submit Trades</button>
-                            <button class="btn-danger" onclick="app.clearTrades()">Clear All</button>
+                        <!-- PENDING TRADES -->
+                        <div style="margin-top: 20px;">
+                            <div class="section-title">Pending Trades</div>
+                            <table id="tradesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Asset</th>
+                                        <th>Action</th>
+                                        <th>Qty</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tradesBody">
+                                </tbody>
+                            </table>
+                            <div id="netCashBox" class="stat-box" style="margin-top: 12px;">
+                                <div class="stat-label">Net Cash After Trades</div>
+                                <div class="stat-value" id="netCash">$0</div>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                <button type="button" class="btn btn-primary" onclick="app.submitTrades()" style="flex: 1;">
+                                    Submit Trades
+                                </button>
+                                <button type="button" class="btn btn-danger" onclick="app.clearTrades()" style="flex: 1;">
+                                    Clear All
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- LEADERBOARD -->
-            <div class="card leaderboard-section">
+            <div class="card">
                 <div class="section-title">🏆 Leaderboard</div>
                 <table id="leaderboardTable">
                     <thead>
                         <tr>
-                            <th style="text-align:left">Rank</th>
-                            <th style="text-align:left">Team</th>
-                            <th>Value</th>
+                            <th>Rank</th>
+                            <th>Team Name</th>
+                            <th>Portfolio Value</th>
                             <th>Gain</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboardBody">
                     </tbody>
                 </table>
-                <div class="leaderboard-update">
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 12px;">
                     Last updated: <span id="lastUpdate">--</span>
                 </div>
             </div>
         </div>
-
-        <!-- ACTION BAR -->
-        <div class="action-bar">
-            <div id="valMsg" class="validation-msg"></div>
-            <span class="spacer"></span>
-        </div>
     </div>
-</div>
 
-<!-- ===== MODAL ===== -->
-<div class="modal" id="confirmModal">
-    <div class="modal-content">
-        <h3>Confirm Trade</h3>
-        <p>You are about to submit your trades and move to the next round. <strong>This cannot be undone.</strong></p>
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="app.closeModal()">Cancel</button>
-            <button class="btn-confirm" onclick="app.submitTradesConfirmed()">Yes, Submit</button>
-        </div>
-    </div>
-</div>
+    <script>
+        // ===== CONFIGURATION =====
+        const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz55-eR6ETO1MUzb260QChSUD-uW8ihBi_HxixixLwLhFSBInybZfmnFI6j167Jtz13/exec';
 
-<script>
-    // ===== CONFIGURATION =====
-    const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz55-eR6ETO1MUzb260QChSUD-uW8ihBi_HxixixLwLhFSBInybZfmnFI6j167Jtz13/exec';
+        // ===== APP STATE =====
+        const app = {
+            sessionToken: localStorage.getItem('sessionToken'),
+            teamId: localStorage.getItem('teamId'),
+            teamName: localStorage.getItem('teamName'),
+            currentRound: 1,
+            maxRounds: 5,
+            currentPrices: {},
+            holdings: {},
+            pendingTrades: [],
+            leaderboardRefreshInterval: null,
 
-    // ===== APP STATE =====
-    const app = {
-        sessionToken: localStorage.getItem('sessionToken'),
-        teamId: localStorage.getItem('teamId'),
-        teamName: localStorage.getItem('teamName'),
-        currentRound: 1,
-        maxRounds: 20,
-        currentPrices: {},
-        holdings: {},
-        pendingTrades: [],
-        leaderboardRefreshInterval: null,
-
-        // ===== INITIALIZATION =====
-        init() {
-            if (this.sessionToken && this.teamId) {
-                this.showGame();
-                this.loadPortfolio();
-                this.loadLeaderboard();
-                this.leaderboardRefreshInterval = setInterval(() => this.loadLeaderboard(), 30000);
-            } else {
-                this.showLogin();
-                document.getElementById('loginForm').addEventListener('submit', (e) => this.login(e));
-            }
-        },
-
-        // ===== UI NAVIGATION =====
-        showLogin() {
-            document.getElementById('loginScreen').classList.add('active');
-            document.getElementById('gameScreen').classList.remove('active');
-        },
-
-        showGame() {
-            document.getElementById('loginScreen').classList.remove('active');
-            document.getElementById('gameScreen').classList.add('active');
-        },
-
-        // ===== AUTHENTICATION =====
-        async login(event) {
-            event.preventDefault();
-            const teamId = document.getElementById('teamId').value.trim();
-            const teamPassword = document.getElementById('teamPassword').value;
-            const loginBtn = document.getElementById('loginBtn');
-            const loginError = document.getElementById('loginError');
-
-            loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
-            loginBtn.disabled = true;
-            loginError.classList.remove('show');
-
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        endpoint: '/login',
-                        teamId,
-                        teamPassword
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success && data.data.sessionToken) {
-                    this.sessionToken = data.data.sessionToken;
-                    this.teamId = teamId;
-                    this.teamName = data.data.teamName;
-                    this.currentRound = data.data.currentRound;
-                    this.maxRounds = data.data.maxRounds;
-                    this.currentPrices = data.data.currentPrices;
-                    this.holdings = data.data.holdings;
-
-                    localStorage.setItem('sessionToken', this.sessionToken);
-                    localStorage.setItem('teamId', this.teamId);
-                    localStorage.setItem('teamName', this.teamName);
-
+            // ===== INITIALIZATION =====
+            init() {
+                if (this.sessionToken && this.teamId) {
                     this.showGame();
-                    this.updateHeader();
-                    this.renderPortfolio();
+                    this.loadPortfolio();
                     this.loadLeaderboard();
                     this.leaderboardRefreshInterval = setInterval(() => this.loadLeaderboard(), 30000);
                 } else {
-                    loginError.textContent = `❌ ${data.error?.message || 'Login failed'}`;
-                    loginError.classList.add('show');
+                    this.showLogin();
+                    document.getElementById('loginForm').addEventListener('submit', (e) => this.login(e));
                 }
-            } catch (error) {
-                loginError.textContent = '❌ Connection error. Check your credentials.';
-                loginError.classList.add('show');
-                console.error('Login error:', error);
-            } finally {
-                loginBtn.innerHTML = 'LOGIN →';
-                loginBtn.disabled = false;
-            }
-        },
+            },
 
-        logout() {
-            this.sessionToken = null;
-            this.teamId = null;
-            this.teamName = null;
-            this.pendingTrades = [];
-            localStorage.removeItem('sessionToken');
-            localStorage.removeItem('teamId');
-            localStorage.removeItem('teamName');
-            clearInterval(this.leaderboardRefreshInterval);
-            this.showLogin();
-            document.getElementById('loginForm').reset();
-        },
+            // ===== AUTHENTICATION =====
+            async login(event) {
+                event.preventDefault();
+                const teamId = document.getElementById('teamId').value.trim();
+                const teamPassword = document.getElementById('teamPassword').value;
+                const loginBtn = document.getElementById('loginBtn');
 
-        // ===== PORTFOLIO & PRICES =====
-        async loadPortfolio() {
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        endpoint: '/portfolio',
-                        sessionToken: this.sessionToken
-                    })
-                });
+                loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
+                loginBtn.disabled = true;
 
-                const data = await response.json();
-                if (data.success) {
-                    this.holdings = data.data.holdings;
-                    this.currentRound = data.data.round;
-                    this.currentPrices = data.data.prices || this.currentPrices;
-                    this.renderPortfolio();
-                    this.updateHeader();
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            endpoint: '/login',
+                            teamId,
+                            teamPassword
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success && data.data.sessionToken) {
+                        this.sessionToken = data.data.sessionToken;
+                        this.teamId = teamId;
+                        this.teamName = data.data.teamName;
+                        this.currentRound = data.data.currentRound;
+                        this.maxRounds = data.data.maxRounds;
+                        this.currentPrices = data.data.currentPrices;
+                        this.holdings = data.data.holdings;
+
+                        localStorage.setItem('sessionToken', this.sessionToken);
+                        localStorage.setItem('teamId', this.teamId);
+                        localStorage.setItem('teamName', this.teamName);
+
+                        this.showGame();
+                        this.updateHeader();
+                        this.renderPortfolio();
+                        this.loadLeaderboard();
+                        this.leaderboardRefreshInterval = setInterval(() => this.loadLeaderboard(), 30000);
+                    } else {
+                        document.getElementById('loginError').innerHTML = 
+                            `<div class="error">❌ ${data.error?.message || 'Login failed'}</div>`;
+                    }
+                } catch (error) {
+                    document.getElementById('loginError').innerHTML = 
+                        `<div class="error">❌ Connection error. Check your Team ID and password.</div>`;
+                    console.error('Login error:', error);
+                } finally {
+                    loginBtn.innerHTML = 'LOGIN';
+                    loginBtn.disabled = false;
                 }
-            } catch (error) {
-                console.error('Load portfolio error:', error);
-            }
-        },
+            },
 
-        renderPortfolio() {
-            const tbody = document.querySelector('#portfolioTable tbody');
-            tbody.innerHTML = '';
+            logout() {
+                this.sessionToken = null;
+                this.teamId = null;
+                this.teamName = null;
+                this.pendingTrades = [];
+                localStorage.removeItem('sessionToken');
+                localStorage.removeItem('teamId');
+                localStorage.removeItem('teamName');
+                clearInterval(this.leaderboardRefreshInterval);
+                this.showLogin();
+                document.getElementById('loginForm').reset();
+            },
 
-            let totalAssetValue = 0;
-            const cash = this.holdings[0] || 0;
+            // ===== UI NAVIGATION =====
+            showLogin() {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('gameScreen').style.display = 'none';
+            },
 
-            for (let assetId = 1; assetId <= 21; assetId++) {
-                const qty = this.holdings[assetId] || 0;
-                if (qty > 0) {
-                    const price = this.currentPrices[assetId] || 0;
-                    const value = qty * price;
-                    totalAssetValue += value;
+            showGame() {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'block';
+            },
 
+            // ===== PORTFOLIO & PRICES =====
+            async loadPortfolio() {
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            endpoint: '/portfolio',
+                            sessionToken: this.sessionToken
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        this.holdings = data.data.holdings;
+                        this.currentRound = data.data.round;
+                        this.renderPortfolio();
+                        this.updateHeader();
+                    }
+                } catch (error) {
+                    console.error('Load portfolio error:', error);
+                }
+            },
+
+            async loadPrices() {
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            endpoint: '/prices',
+                            sessionToken: this.sessionToken
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        this.currentPrices = data.data;
+                    }
+                } catch (error) {
+                    console.error('Load prices error:', error);
+                }
+            },
+
+            renderPortfolio() {
+                const tbody = document.querySelector('#portfolioTable tbody');
+                tbody.innerHTML = '';
+
+                let totalAssetValue = 0;
+                const cash = this.holdings[0] || 0;
+
+                for (let assetId = 1; assetId <= 21; assetId++) {
+                    const qty = this.holdings[assetId] || 0;
+                    if (qty > 0) {
+                        const price = this.currentPrices[assetId] || 0;
+                        const value = qty * price;
+                        totalAssetValue += value;
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>Asset ${assetId}</td>
+                            <td>${qty.toFixed(0)}</td>
+                            <td>$${price.toFixed(2)}</td>
+                            <td>$${value.toFixed(2)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                }
+
+                const totalValue = totalAssetValue + cash;
+                document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
+                document.getElementById('cashValue').textContent = `$${cash.toFixed(2)}`;
+                document.getElementById('portfolioValue').textContent = `$${totalValue.toFixed(2)}`;
+                document.getElementById('cashBalance').textContent = `$${cash.toFixed(2)}`;
+
+                this.updateNetCash();
+            },
+
+            updateHeader() {
+                document.getElementById('teamName').textContent = this.teamName;
+                document.getElementById('currentRound').textContent = `${this.currentRound}/${this.maxRounds}`;
+            },
+
+            // ===== TRADING =====
+            async addTrade(event) {
+                event.preventDefault();
+                const assetId = parseInt(document.getElementById('assetId').value);
+                const action = document.getElementById('action').value;
+                const quantity = parseInt(document.getElementById('quantity').value);
+
+                const errorDiv = document.getElementById('tradeError');
+                errorDiv.innerHTML = '';
+
+                if (action === 'SELL') {
+                    const owned = this.holdings[assetId] || 0;
+                    if (quantity > owned) {
+                        errorDiv.innerHTML = `<div class="error">❌ Cannot sell ${quantity}, you only own ${owned}</div>`;
+                        return;
+                    }
+                }
+
+                this.pendingTrades.push({ assetId, action, quantity });
+                document.getElementById('tradeForm').reset();
+                this.renderPendingTrades();
+            },
+
+            renderPendingTrades() {
+                const tbody = document.getElementById('tradesBody');
+                tbody.innerHTML = '';
+
+                this.pendingTrades.forEach((trade, index) => {
                     const row = document.createElement('tr');
+                    const actionColor = trade.action === 'BUY' ? '#10b981' : '#ef4444';
                     row.innerHTML = `
-                        <td>Asset ${assetId}</td>
-                        <td>${qty.toFixed(0)}</td>
-                        <td>$${price.toFixed(2)}</td>
-                        <td>$${value.toFixed(2)}</td>
+                        <td>Asset ${trade.assetId}</td>
+                        <td><span style="color: ${actionColor}; font-weight: 600;">${trade.action}</span></td>
+                        <td>${trade.quantity}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" 
+                                onclick="app.removeTrade(${index})">Remove</button>
+                        </td>
                     `;
                     tbody.appendChild(row);
+                });
+
+                this.updateNetCash();
+            },
+
+            removeTrade(index) {
+                this.pendingTrades.splice(index, 1);
+                this.renderPendingTrades();
+            },
+
+            clearTrades() {
+                this.pendingTrades = [];
+                this.renderPendingTrades();
+            },
+
+            updateNetCash() {
+                let totalCost = 0;
+                const cash = this.holdings[0] || 0;
+
+                this.pendingTrades.forEach(trade => {
+                    const price = this.currentPrices[trade.assetId] || 0;
+                    if (trade.action === 'BUY') {
+                        totalCost += trade.quantity * price;
+                    } else {
+                        totalCost -= trade.quantity * price;
+                    }
+                });
+
+                const netCash = cash - totalCost;
+                document.getElementById('netCash').textContent = `$${netCash.toFixed(2)}`;
+
+                if (netCash < 0) {
+                    document.getElementById('netCashBox').style.color = '#ef4444';
+                } else {
+                    document.getElementById('netCashBox').style.color = '#f1f5f9';
                 }
-            }
+            },
 
-            const totalValue = totalAssetValue + cash;
-            document.getElementById('statPortval').textContent = `$${totalValue.toFixed(2)}`;
-            document.getElementById('statCash').textContent = `$${cash.toFixed(2)}`;
-
-            this.updateNetCash();
-        },
-
-        updateHeader() {
-            document.getElementById('teamName').textContent = this.teamName;
-            document.getElementById('headerRound').textContent = `R${this.currentRound}`;
-            document.getElementById('currentRound').textContent = `${this.currentRound}/${this.maxRounds}`;
-        },
-
-        // ===== TRADING =====
-        async addTrade(event) {
-            event.preventDefault();
-            const assetId = parseInt(document.getElementById('assetId').value);
-            const action = document.getElementById('action').value;
-            const quantity = parseInt(document.getElementById('quantity').value);
-
-            const errorDiv = document.getElementById('tradeError');
-            errorDiv.classList.remove('show');
-
-            if (action === 'SELL') {
-                const owned = this.holdings[assetId] || 0;
-                if (quantity > owned) {
-                    errorDiv.textContent = `❌ Cannot sell ${quantity}, you only own ${owned}`;
-                    errorDiv.classList.add('show');
+            async submitTrades() {
+                if (this.pendingTrades.length === 0) {
+                    document.getElementById('tradeError').innerHTML = 
+                        '<div class="error">❌ No trades to submit</div>';
                     return;
                 }
-            }
 
-            this.pendingTrades.push({ assetId, action, quantity });
-            document.getElementById('tradeForm').reset();
-            this.renderPendingTrades();
-        },
+                const submitBtn = event.target;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="loading"></span>Submitting...';
 
-        renderPendingTrades() {
-            const tbody = document.getElementById('tradesBody');
-            tbody.innerHTML = '';
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            endpoint: '/trade',
+                            sessionToken: this.sessionToken,
+                            trades: this.pendingTrades
+                        })
+                    });
 
-            this.pendingTrades.forEach((trade, index) => {
-                const row = document.createElement('tr');
-                const actionColor = trade.action === 'BUY' ? 'var(--accent)' : 'var(--danger)';
-                row.innerHTML = `
-                    <td>Asset ${trade.assetId}</td>
-                    <td><span style="color: ${actionColor}; font-weight: 600;">${trade.action}</span></td>
-                    <td>${trade.quantity}</td>
-                    <td><button class="btn-danger" onclick="app.removeTrade(${index})">✕</button></td>
-                `;
-                tbody.appendChild(row);
-            });
+                    const data = await response.json();
 
-            this.updateNetCash();
-        },
-
-        removeTrade(index) {
-            this.pendingTrades.splice(index, 1);
-            this.renderPendingTrades();
-        },
-
-        clearTrades() {
-            this.pendingTrades = [];
-            this.renderPendingTrades();
-        },
-
-        updateNetCash() {
-            let totalCost = 0;
-            const cash = this.holdings[0] || 0;
-
-            this.pendingTrades.forEach(trade => {
-                const price = this.currentPrices[trade.assetId] || 0;
-                if (trade.action === 'BUY') {
-                    totalCost += trade.quantity * price;
-                } else {
-                    totalCost -= trade.quantity * price;
+                    if (data.success) {
+                        this.holdings = data.data.holdings;
+                        this.pendingTrades = [];
+                        document.getElementById('tradeError').innerHTML = 
+                            '<div class="success">✅ Trades submitted successfully!</div>';
+                        this.renderPortfolio();
+                        this.renderPendingTrades();
+                        this.loadLeaderboard();
+                        setTimeout(() => {
+                            document.getElementById('tradeError').innerHTML = '';
+                        }, 3000);
+                    } else {
+                        document.getElementById('tradeError').innerHTML = 
+                            `<div class="error">❌ ${data.error?.message || 'Trade failed'}</div>`;
+                    }
+                } catch (error) {
+                    document.getElementById('tradeError').innerHTML = 
+                        '<div class="error">❌ Connection error. Please try again.</div>';
+                    console.error('Submit trades error:', error);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Submit Trades';
                 }
-            });
+            },
 
-            const netCash = cash - totalCost;
-            document.getElementById('netCash').textContent = `$${netCash.toFixed(2)}`;
+            // ===== LEADERBOARD =====
+            async loadLeaderboard() {
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            endpoint: '/leaderboard',
+                            sessionToken: this.sessionToken
+                        })
+                    });
 
-            if (netCash < 0) {
-                document.getElementById('netCash').style.color = 'var(--danger)';
-            } else {
-                document.getElementById('netCash').style.color = 'var(--text)';
-            }
-        },
+                    const data = response.json();
+                    if ((await data).success) {
+                        this.renderLeaderboard((await data).data);
+                    }
+                } catch (error) {
+                    console.error('Load leaderboard error:', error);
+                }
+            },
 
-        submitTrades() {
-            if (this.pendingTrades.length === 0) {
-                const errorDiv = document.getElementById('tradeError');
-                errorDiv.textContent = '❌ No trades to submit';
-                errorDiv.classList.add('show');
-                return;
-            }
+            renderLeaderboard(leaderboard) {
+                const tbody = document.getElementById('leaderboardBody');
+                tbody.innerHTML = '';
 
-            document.getElementById('confirmModal').classList.add('open');
-        },
-
-        async submitTradesConfirmed() {
-            this.closeModal();
-
-            const submitBtn = event.target;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span>Submitting...';
-
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        endpoint: '/trade',
-                        sessionToken: this.sessionToken,
-                        trades: this.pendingTrades
-                    })
+                (leaderboard || []).slice(0, 100).forEach((team, index) => {
+                    const row = document.createElement('tr');
+                    const gainColor = team.gain >= 0 ? '#10b981' : '#ef4444';
+                    const gainSign = team.gain >= 0 ? '+' : '';
+                    
+                    row.innerHTML = `
+                        <td><strong>#${index + 1}</strong></td>
+                        <td>${team.teamName}${team.teamId === this.teamId ? ' <span class="badge">YOU</span>' : ''}</td>
+                        <td>$${parseFloat(team.finalValue || 0).toFixed(2)}</td>
+                        <td style="color: ${gainColor};">${gainSign}${parseFloat(team.gain || 0).toFixed(2)}%</td>
+                    `;
+                    tbody.appendChild(row);
                 });
 
-                const data = await response.json();
-
-                if (data.success) {
-                    this.holdings = data.data.holdings;
-                    this.currentRound = data.data.round;
-                    this.currentPrices = data.data.prices || this.currentPrices;
-                    this.pendingTrades = [];
-                    
-                    const msgDiv = document.getElementById('valMsg');
-                    msgDiv.className = 'success';
-                    msgDiv.textContent = '✓ Trades submitted! Moving to next round...';
-                    msgDiv.style.display = 'block';
-                    
-                    this.renderPortfolio();
-                    this.renderPendingTrades();
-                    this.loadLeaderboard();
-                    
-                    setTimeout(() => {
-                        msgDiv.style.display = 'none';
-                    }, 3000);
-                } else {
-                    const errorDiv = document.getElementById('tradeError');
-                    errorDiv.textContent = `❌ ${data.error?.message || 'Trade failed'}`;
-                    errorDiv.classList.add('show');
-                }
-            } catch (error) {
-                const errorDiv = document.getElementById('tradeError');
-                errorDiv.textContent = '❌ Connection error. Please try again.';
-                errorDiv.classList.add('show');
-                console.error('Submit trades error:', error);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Submit Trades';
+                document.getElementById('lastUpdate').textContent = 
+                    new Date().toLocaleTimeString();
             }
-        },
+        };
 
-        // ===== LEADERBOARD =====
-        async loadLeaderboard() {
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        endpoint: '/leaderboard',
-                        sessionToken: this.sessionToken
-                    })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    this.renderLeaderboard(data.data);
-                }
-            } catch (error) {
-                console.error('Load leaderboard error:', error);
+        // ===== POPULATE ASSET DROPDOWN =====
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('assetId');
+            for (let i = 1; i <= 21; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Asset ${i}`;
+                select.appendChild(option);
             }
-        },
-
-        renderLeaderboard(leaderboard) {
-            const tbody = document.getElementById('leaderboardBody');
-            tbody.innerHTML = '';
-
-            (leaderboard || []).slice(0, 50).forEach((team, index) => {
-                const row = document.createElement('tr');
-                const gainColor = team.gain >= 0 ? 'var(--accent)' : 'var(--danger)';
-                const gainSign = team.gain >= 0 ? '+' : '';
-                const isYou = team.teamId === this.teamId ? '<span class="badge">YOU</span>' : '';
-                
-                row.innerHTML = `
-                    <td><strong>#${index + 1}</strong></td>
-                    <td>${team.teamName}${isYou}</td>
-                    <td>$${parseFloat(team.finalValue || 0).toFixed(2)}</td>
-                    <td style="color: ${gainColor};">${gainSign}${parseFloat(team.gain || 0).toFixed(2)}%</td>
-                `;
-                tbody.appendChild(row);
-            });
-
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-        },
-
-        closeModal() {
-            document.getElementById('confirmModal').classList.remove('open');
-        }
-    };
-
-    // ===== POPULATE ASSET DROPDOWN =====
-    document.addEventListener('DOMContentLoaded', () => {
-        const select = document.getElementById('assetId');
-        for (let i = 1; i <= 21; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = `Asset ${i}`;
-            select.appendChild(option);
-        }
-        app.init();
-    });
-</script>
-
+            app.init();
+        });
+    </script>
 </body>
 </html>
