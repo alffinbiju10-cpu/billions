@@ -646,7 +646,7 @@
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
                         body: JSON.stringify({
-                            endpoint: 'login',
+                            endpoint: '/login',
                             teamId,
                             teamPassword
                         })
@@ -716,7 +716,7 @@
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
                         body: JSON.stringify({
-                            endpoint: 'portfolio',
+                            endpoint: '/portfolio',
                             sessionToken: this.sessionToken
                         })
                     });
@@ -738,7 +738,7 @@
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
                         body: JSON.stringify({
-                            endpoint: 'prices',
+                            endpoint: '/prices',
                             sessionToken: this.sessionToken
                         })
                     });
@@ -884,7 +884,7 @@
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
                         body: JSON.stringify({
-                            endpoint: 'trade',
+                            endpoint: '/trade',
                             sessionToken: this.sessionToken,
                             trades: this.pendingTrades
                         })
@@ -923,7 +923,7 @@
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
                         body: JSON.stringify({
-                            endpoint: 'leaderboard',
+                            endpoint: '/leaderboard',
                             sessionToken: this.sessionToken
                         })
                     });
