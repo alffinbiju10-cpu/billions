@@ -213,7 +213,9 @@
             color: #ef4444;
         }
 
-        /* ===== LOGIN SCREEN ===== */
+        /* ===== AUTH SCREENS ===== */
+        #entryScreen,
+        #createTeamScreen,
         #loginScreen {
             display: flex;
             align-items: center;
@@ -436,8 +438,57 @@
     </style>
 </head>
 <body>
+    <!-- ENTRY SCREEN -->
+    <div id="entryScreen">
+        <div class="login-card">
+            <div class="login-logo">
+                <h1>💰 BILLIONS</h1>
+                <p>Stock Market Simulator</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="app.showCreateTeam()">
+                    Create Team
+                </button>
+                <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="app.showLoginScreen()">
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE TEAM SCREEN -->
+    <div id="createTeamScreen" style="display: none;">
+        <div class="login-card">
+            <div class="login-logo">
+                <h1>💰 BILLIONS</h1>
+                <p>Create Team</p>
+            </div>
+            <form id="createTeamForm">
+                <div class="input-group">
+                    <label for="adminPassword">Admin Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+                </div>
+                <div class="input-group">
+                    <label for="newTeamName">Team Name</label>
+                    <input type="text" id="newTeamName" placeholder="e.g., Alpha Team" required>
+                </div>
+                <div class="input-group">
+                    <label for="newTeamPassword">Team Password</label>
+                    <input type="password" id="newTeamPassword" placeholder="Create a unique password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <span id="createTeamBtn">CREATE TEAM</span>
+                </button>
+                <div id="createTeamError"></div>
+            </form>
+            <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="app.showEntry()">
+                Back
+            </button>
+        </div>
+    </div>
+
     <!-- LOGIN SCREEN -->
-    <div id="loginScreen">
+    <div id="loginScreen" style="display: none;">
         <div class="login-card">
             <div class="login-logo">
                 <h1>💰 BILLIONS</h1>
@@ -457,6 +508,9 @@
                 </button>
                 <div id="loginError"></div>
             </form>
+            <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="app.showEntry()">
+                Back
+            </button>
         </div>
     </div>
 
@@ -627,8 +681,91 @@
                     this.loadLeaderboard();
                     this.leaderboardRefreshInterval = setInterval(() => this.loadLeaderboard(), 30000);
                 } else {
-                    this.showLogin();
+                    this.showEntry();
                     document.getElementById('loginForm').addEventListener('submit', (e) => this.login(e));
+                    document.getElementById('createTeamForm').addEventListener('submit', (e) => this.createTeam(e));
+                }
+            },
+
+            // ===== SCREEN NAVIGATION =====
+            showEntry() {
+                document.getElementById('entryScreen').style.display = 'flex';
+                document.getElementById('createTeamScreen').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'none';
+            },
+
+            showCreateTeam() {
+                document.getElementById('entryScreen').style.display = 'none';
+                document.getElementById('createTeamScreen').style.display = 'flex';
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'none';
+            },
+
+            showLoginScreen() {
+                document.getElementById('entryScreen').style.display = 'none';
+                document.getElementById('createTeamScreen').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('gameScreen').style.display = 'none';
+            },
+
+            showGame() {
+                document.getElementById('entryScreen').style.display = 'none';
+                document.getElementById('createTeamScreen').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'block';
+            },
+
+            // ===== TEAM CREATION =====
+            async createTeam(event) {
+                event.preventDefault();
+                const adminPassword = document.getElementById('adminPassword').value;
+                const teamName = document.getElementById('newTeamName').value.trim();
+                const teamPassword = document.getElementById('newTeamPassword').value;
+                const createTeamBtn = document.getElementById('createTeamBtn');
+                const errorDiv = document.getElementById('createTeamError');
+
+                errorDiv.innerHTML = '';
+
+                if (!teamName || !teamPassword) {
+                    errorDiv.innerHTML = '<div class="error">❌ All fields are required</div>';
+                    return;
+                }
+
+                createTeamBtn.innerHTML = '<span class="loading"></span>Creating...';
+                createTeamBtn.parentElement.disabled = true;
+
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            endpoint: '/createTeam',
+                            adminPassword,
+                            teamName,
+                            teamPassword
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        errorDiv.innerHTML = 
+                            `<div class="success">✅ Team created successfully! Your Team ID: ${data.data.teamId}</div>`;
+                        document.getElementById('createTeamForm').reset();
+                        setTimeout(() => {
+                            this.showLoginScreen();
+                        }, 2000);
+                    } else {
+                        errorDiv.innerHTML = 
+                            `<div class="error">❌ ${data.error?.message || 'Team creation failed'}</div>`;
+                    }
+                } catch (error) {
+                    errorDiv.innerHTML = 
+                        `<div class="error">❌ Connection error. Please try again.</div>`;
+                    console.error('Create team error:', error);
+                } finally {
+                    createTeamBtn.innerHTML = 'CREATE TEAM';
+                    createTeamBtn.parentElement.disabled = false;
                 }
             },
 
@@ -640,7 +777,7 @@
                 const loginBtn = document.getElementById('loginBtn');
 
                 loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
-                loginBtn.disabled = true;
+                loginBtn.parentElement.disabled = true;
 
                 try {
                     const response = await fetch(API_ENDPOINT, {
@@ -682,7 +819,7 @@
                     console.error('Login error:', error);
                 } finally {
                     loginBtn.innerHTML = 'LOGIN';
-                    loginBtn.disabled = false;
+                    loginBtn.parentElement.disabled = false;
                 }
             },
 
@@ -695,19 +832,9 @@
                 localStorage.removeItem('teamId');
                 localStorage.removeItem('teamName');
                 clearInterval(this.leaderboardRefreshInterval);
-                this.showLogin();
+                this.showEntry();
                 document.getElementById('loginForm').reset();
-            },
-
-            // ===== UI NAVIGATION =====
-            showLogin() {
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('gameScreen').style.display = 'none';
-            },
-
-            showGame() {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('gameScreen').style.display = 'block';
+                document.getElementById('createTeamForm').reset();
             },
 
             // ===== PORTFOLIO & PRICES =====
