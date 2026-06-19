@@ -1,1103 +1,767 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billions Game - Stock Market Simulator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1a202c 100%);
-            color: #e2e8f0;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ===== COMMON STYLES ===== */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .card {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: rgba(100, 116, 139, 0.5);
-            color: #e2e8f0;
-            border: 1px solid rgba(148, 163, 184, 0.3);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: rgba(100, 116, 139, 0.8);
-        }
-
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.7);
-            color: white;
-        }
-
-        .btn-danger:hover:not(:disabled) {
-            background: rgba(239, 68, 68, 1);
-        }
-
-        .input-group {
-            margin-bottom: 16px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #cbd5e1;
-        }
-
-        .input-group input,
-        .input-group select {
-            width: 100%;
-            padding: 10px 12px;
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            border-radius: 8px;
-            color: #e2e8f0;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-group input:focus,
-        .input-group select:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        .error {
-            color: #ef4444;
-            font-size: 13px;
-            margin-top: 6px;
-            padding: 8px;
-            background: rgba(239, 68, 68, 0.1);
-            border-radius: 6px;
-            border-left: 3px solid #ef4444;
-        }
-
-        .success {
-            color: #10b981;
-            font-size: 13px;
-            margin-top: 6px;
-            padding: 8px;
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 6px;
-            border-left: 3px solid #10b981;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 50%;
-            border-top-color: #3b82f6;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        table th {
-            background: rgba(15, 23, 42, 0.9);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #94a3b8;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-        }
-
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-        }
-
-        table tr:hover {
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: #f1f5f9;
-            padding-bottom: 12px;
-            border-bottom: 2px solid rgba(59, 130, 246, 0.5);
-        }
-
-        .stat-box {
-            background: rgba(15, 23, 42, 0.6);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #f1f5f9;
-            margin-top: 4px;
-        }
-
-        .stat-change {
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .stat-change.positive {
-            color: #10b981;
-        }
-
-        .stat-change.negative {
-            color: #ef4444;
-        }
-
-        /* ===== AUTH SCREENS ===== */
-        #entryScreen,
-        #createTeamScreen,
-        #loginScreen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .login-card {
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-        }
-
-        .login-logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-logo h1 {
-            font-size: 32px;
-            color: #3b82f6;
-            margin-bottom: 8px;
-        }
-
-        .login-logo p {
-            font-size: 14px;
-            color: #94a3b8;
-        }
-
-        /* ===== GAME SCREEN ===== */
-        #gameScreen {
-            display: none;
-        }
-
-        .header {
-            background: rgba(30, 41, 59, 0.8);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-            padding: 16px 0;
-            margin-bottom: 24px;
-            sticky: top 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .header-left h2 {
-            font-size: 20px;
-            color: #f1f5f9;
-            margin-bottom: 4px;
-        }
-
-        .header-stats {
-            display: flex;
-            gap: 30px;
-            font-size: 14px;
-        }
-
-        .header-stat {
-            text-align: center;
-        }
-
-        .header-stat-label {
-            color: #94a3b8;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        .header-stat-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #f1f5f9;
-            margin-top: 2px;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 12px;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .grid-full {
-            grid-column: 1 / -1;
-        }
-
-        /* ===== MODAL ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            border-radius: 16px;
-            padding: 24px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: #f1f5f9;
-        }
-
-        .modal-close {
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            color: #94a3b8;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .modal-close:hover {
-            color: #e2e8f0;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .container {
-                padding: 12px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .grid-2,
-            .grid-3 {
-                grid-template-columns: 1fr;
-            }
-
-            .header-stats {
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .login-card {
-                padding: 24px;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            table th,
-            table td {
-                padding: 8px;
-            }
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-            align-items: flex-end;
-        }
-
-        .form-row.full {
-            grid-template-columns: 1fr;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billions – Investment Game</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #111318;
+  --surface2: #181c24;
+  --border: #2a2f3d;
+  --border2: #3a4158;
+  --text: #e8eaf0;
+  --muted: #7a8099;
+  --accent: #00e5a0;
+  --accent2: #00b87d;
+  --danger: #ff4d6a;
+  --warn: #f5a623;
+  --info: #4d9fff;
+  --gold: #ffd166;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+#screen-welcome {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: radial-gradient(ellipse at 50% 30%, #001a0f 0%, var(--bg) 70%);
+}
+.logo-ring {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 0 40px rgba(0,229,160,0.15);
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 30px rgba(0,229,160,0.1); }
+  50% { box-shadow: 0 0 60px rgba(0,229,160,0.25); }
+}
+.logo-ring svg { width: 44px; height: 44px; }
+h1.game-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+h1.game-title span { color: var(--accent); }
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+  margin-bottom: 2.5rem;
+  font-weight: 300;
+}
+.welcome-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+.welcome-card h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.form-row { margin-bottom: 1rem; }
+.form-row label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.form-row input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.95rem;
+  padding: 0.65rem 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-row input:focus { border-color: var(--accent); }
+.err-msg { color: var(--danger); font-size: 0.8rem; margin-top: 0.75rem; display: none; }
+.btn-primary {
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.8rem;
+  cursor: pointer;
+  margin-top: 1.2rem;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-primary:hover { background: var(--accent2); }
+.btn-primary:active { transform: scale(0.98); }
+
+.game-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.header-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.team-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.team-badge span { color: var(--text); font-weight: 500; }
+.round-badge {
+  background: var(--surface2);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+.header-spacer { flex: 1; }
+.btn-sm {
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-sm:hover { border-color: var(--text); color: var(--text); }
+.btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-card {
+  background: var(--surface);
+  padding: 0.9rem 1.25rem;
+}
+.stat-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+.stat-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+.stat-value.green { color: var(--accent); }
+.stat-value.red { color: var(--danger); }
+.stat-value.gold { color: var(--gold); }
+
+.game-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.game-content { flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem; }
+
+.section-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.asset-table-wrap { overflow-x: auto; }
+table.asset-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+table.asset-table th {
+  background: var(--surface);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+table.asset-table th:first-child { text-align: left; }
+table.asset-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  text-align: right;
+  vertical-align: middle;
+}
+table.asset-table td:first-child { text-align: left; color: var(--text); }
+table.asset-table tr:last-child td { border-bottom: none; }
+table.asset-table tr.totals td {
+  border-top: 1px solid var(--border2);
+  font-weight: 500;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  background: var(--surface2);
+}
+table.asset-table tr:hover td { background: rgba(255,255,255,0.02); }
+table.asset-table tr.cash-row td { background: rgba(0,229,160,0.04); }
+
+.asset-name { color: var(--text); }
+.asset-num { color: var(--muted); font-size: 0.72rem; margin-right: 6px; font-family: 'DM Mono', monospace; }
+.mono { font-family: 'DM Mono', monospace; color: var(--muted); }
+.qty-input {
+  width: 80px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.5rem;
+  text-align: right;
+  outline: none;
+}
+.qty-input:focus { border-color: var(--accent); }
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.qty-input[type=number] { -moz-appearance: textfield; }
+
+.validation-msg {
+  font-size: 0.8rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 5px;
+  margin-top: 0.8rem;
+  font-family: 'DM Mono', monospace;
+}
+.validation-msg.err { color: var(--danger); background: rgba(255,77,106,0.1); border: 1px solid rgba(255,77,106,0.3); }
+.validation-msg.ok { color: var(--accent); background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.3); }
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal.open { display: flex; }
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 450px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+.modal-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+  transition: background 0.15s;
+}
+.modal-btn:hover { background: var(--accent2); }
+.modal-btn.close { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+.modal-btn.close:hover { color: var(--text); border-color: var(--text); }
+
+#finish-screen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+.finish-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+}
+.finish-card h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 2rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.final-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.finish-team {
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+</style>
 </head>
 <body>
-    <!-- ENTRY SCREEN -->
-    <div id="entryScreen">
-        <div class="login-card">
-            <div class="login-logo">
-                <h1>💰 BILLIONS</h1>
-                <p>Stock Market Simulator</p>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="app.showCreateTeam()">
-                    Create Team
-                </button>
-                <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="app.showLoginScreen()">
-                    Login
-                </button>
-            </div>
-        </div>
+
+<!-- LOGIN SCREEN -->
+<div id="screen-welcome" class="screen active">
+  <div class="logo-ring">
+    <svg viewBox="0 0 24 24" fill="currentColor" color="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+  </div>
+  <h1 class="game-title">BILLIONS</h1>
+  <p class="tagline">Stock Market Simulator</p>
+  <div class="welcome-card">
+    <h2>Login</h2>
+    <div class="form-row">
+      <label for="inp-team">Team Name</label>
+      <input type="text" id="inp-team" placeholder="e.g., Alpha Team">
     </div>
-
-    <!-- CREATE TEAM SCREEN -->
-    <div id="createTeamScreen" style="display: none;">
-        <div class="login-card">
-            <div class="login-logo">
-                <h1>💰 BILLIONS</h1>
-                <p>Create Team</p>
-            </div>
-            <form id="createTeamForm">
-                <div class="input-group">
-                    <label for="adminPassword">Admin Password</label>
-                    <input type="password" id="adminPassword" placeholder="Enter admin password" required>
-                </div>
-                <div class="input-group">
-                    <label for="newTeamName">Team Name</label>
-                    <input type="text" id="newTeamName" placeholder="e.g., Alpha Team" required>
-                </div>
-                <div class="input-group">
-                    <label for="newTeamPassword">Team Password</label>
-                    <input type="password" id="newTeamPassword" placeholder="Create a unique password" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                    <span id="createTeamBtn">CREATE TEAM</span>
-                </button>
-                <div id="createTeamError"></div>
-            </form>
-            <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="app.showEntry()">
-                Back
-            </button>
-        </div>
+    <div class="form-row">
+      <label for="inp-pass">Password</label>
+      <input type="password" id="inp-pass" placeholder="Your team password">
     </div>
+    <button class="btn-primary" onclick="startGame()">Login</button>
+    <div id="welcome-err" class="err-msg"></div>
+  </div>
+</div>
 
-    <!-- LOGIN SCREEN -->
-    <div id="loginScreen" style="display: none;">
-        <div class="login-card">
-            <div class="login-logo">
-                <h1>💰 BILLIONS</h1>
-                <p>Stock Market Simulator</p>
-            </div>
-            <form id="loginForm">
-                <div class="input-group">
-                    <label for="teamId">Team ID</label>
-                    <input type="text" id="teamId" placeholder="e.g., TEAM-000001" required>
-                </div>
-                <div class="input-group">
-                    <label for="teamPassword">Password</label>
-                    <input type="password" id="teamPassword" placeholder="Enter your password" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                    <span id="loginBtn">LOGIN</span>
-                </button>
-                <div id="loginError"></div>
-            </form>
-            <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="app.showEntry()">
-                Back
-            </button>
-        </div>
+<!-- GAME SCREEN -->
+<div id="screen-game" class="screen">
+  <div class="game-header">
+    <div class="header-logo">💰 BILLIONS</div>
+    <div class="team-badge">Team: <span id="header-team">—</span></div>
+    <div class="round-badge" id="round-badge">Round 1/20</div>
+    <div class="header-spacer"></div>
+    <button class="btn-sm danger" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat-card">
+      <div class="stat-label">Cash Balance</div>
+      <div class="stat-value green" id="stat-cash">$0</div>
     </div>
-
-    <!-- GAME SCREEN -->
-    <div id="gameScreen">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="header-content">
-                <div class="header-left">
-                    <h2 id="teamName">Team Name</h2>
-                </div>
-                <div class="header-stats">
-                    <div class="header-stat">
-                        <div class="header-stat-label">Round</div>
-                        <div class="header-stat-value" id="currentRound">1/5</div>
-                    </div>
-                    <div class="header-stat">
-                        <div class="header-stat-label">Portfolio Value</div>
-                        <div class="header-stat-value" id="portfolioValue">$0</div>
-                    </div>
-                    <div class="header-stat">
-                        <div class="header-stat-label">Cash Balance</div>
-                        <div class="header-stat-value" id="cashBalance">$0</div>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <button class="btn btn-secondary" onclick="app.logout()">Logout</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN CONTENT -->
-        <div class="container">
-            <!-- PORTFOLIO & TRADING -->
-            <div class="grid-2">
-                <!-- PORTFOLIO -->
-                <div>
-                    <div class="card">
-                        <div class="section-title">📊 Portfolio</div>
-                        <div class="stat-box">
-                            <div class="stat-label">Total Value</div>
-                            <div class="stat-value" id="totalValue">$0</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Cash Balance</div>
-                            <div class="stat-value" id="cashValue">$0</div>
-                        </div>
-                        <table id="portfolioTable" style="margin-top: 16px;">
-                            <thead>
-                                <tr>
-                                    <th>Asset</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- TRADING PANEL -->
-                <div>
-                    <div class="card">
-                        <div class="section-title">💼 Place Trades</div>
-                        <form id="tradeForm" onsubmit="app.addTrade(event)">
-                            <div class="form-row">
-                                <div class="input-group">
-                                    <label for="assetId">Asset</label>
-                                    <select id="assetId" required>
-                                        <option value="">Select Asset</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label for="action">Action</label>
-                                    <select id="action" required>
-                                        <option value="BUY">BUY</option>
-                                        <option value="SELL">SELL</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label for="quantity">Qty</label>
-                                    <input type="number" id="quantity" min="1" placeholder="10" required>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                Add Trade
-                            </button>
-                        </form>
-                        <div id="tradeError"></div>
-
-                        <!-- PENDING TRADES -->
-                        <div style="margin-top: 20px;">
-                            <div class="section-title">Pending Trades</div>
-                            <table id="tradesTable">
-                                <thead>
-                                    <tr>
-                                        <th>Asset</th>
-                                        <th>Action</th>
-                                        <th>Qty</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tradesBody">
-                                </tbody>
-                            </table>
-                            <div id="netCashBox" class="stat-box" style="margin-top: 12px;">
-                                <div class="stat-label">Net Cash After Trades</div>
-                                <div class="stat-value" id="netCash">$0</div>
-                            </div>
-                            <div style="display: flex; gap: 8px; margin-top: 12px;">
-                                <button type="button" class="btn btn-primary" onclick="app.submitTrades()" style="flex: 1;">
-                                    Submit Trades
-                                </button>
-                                <button type="button" class="btn btn-danger" onclick="app.clearTrades()" style="flex: 1;">
-                                    Clear All
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LEADERBOARD -->
-            <div class="card">
-                <div class="section-title">🏆 Leaderboard</div>
-                <table id="leaderboardTable">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Team Name</th>
-                            <th>Portfolio Value</th>
-                            <th>Gain</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboardBody">
-                    </tbody>
-                </table>
-                <div style="font-size: 12px; color: #94a3b8; margin-top: 12px;">
-                    Last updated: <span id="lastUpdate">--</span>
-                </div>
-            </div>
-        </div>
+    <div class="stat-card">
+      <div class="stat-label">Portfolio Value</div>
+      <div class="stat-value" id="stat-portfolio">$0</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Assets</div>
+      <div class="stat-value" id="stat-total">$100,000</div>
+    </div>
+  </div>
 
-    <script>
-        // ===== CONFIGURATION =====
-        const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwqHe9k61e1rP6egxcFeGkrHCMggfb-swaMfhUb-5gGUHm6smiaM1QqDCKULl5NzAMo/exec';
+  <div class="game-body">
+    <div class="game-content">
+      <div class="section-title">Holdings & Orders</div>
+      <div class="asset-table-wrap">
+        <table class="asset-table" id="assets-table">
+          <thead>
+            <tr>
+              <th>Asset</th>
+              <th>Price</th>
+              <th>Holdings</th>
+              <th>Buy</th>
+              <th>Sell</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="assets-body"></tbody>
+        </table>
+      </div>
+      <div id="val-msg" class="validation-msg"></div>
+      <button class="btn-primary" id="commit-btn" onclick="showCommitConfirm()" disabled>Commit Trades</button>
+    </div>
+  </div>
+</div>
 
-        // ===== APP STATE =====
-        const app = {
-            sessionToken: localStorage.getItem('sessionToken'),
-            teamId: localStorage.getItem('teamId'),
-            teamName: localStorage.getItem('teamName'),
-            currentRound: 1,
-            maxRounds: 5,
-            currentPrices: {},
-            holdings: {},
-            pendingTrades: [],
-            leaderboardRefreshInterval: null,
+<!-- FINISH SCREEN -->
+<div id="finish-screen" class="screen">
+  <div class="finish-card">
+    <h2>Game Complete</h2>
+    <div class="final-val">Final Portfolio: <span id="final-val">$0</span></div>
+    <div class="finish-team" id="final-team">—</div>
+    <button class="btn-primary" onclick="newGame()">Play Again</button>
+  </div>
+</div>
 
-            // ===== INITIALIZATION =====
-            init() {
-                if (this.sessionToken && this.teamId) {
-                    this.showGame();
-                    this.loadPortfolio();
-                    this.loadLeaderboard();
-                    this.leaderboardRefreshInterval = setInterval(() => this.loadLeaderboard(), 30000);
-                } else {
-                    this.showEntry();
-                    document.getElementById('loginForm').addEventListener('submit', (e) => this.login(e));
-                    document.getElementById('createTeamForm').addEventListener('submit', (e) => this.createTeam(e));
-                }
-            },
+<!-- COMMIT MODAL -->
+<div id="modal-commit" class="modal">
+  <div class="modal-content">
+    <div class="modal-title">Confirm Trade Execution</div>
+    <p style="color:var(--muted);margin-bottom:1rem;font-size:0.9rem;">
+      Review your orders and click to confirm. This will advance to the next round.
+    </p>
+    <button class="modal-btn" onclick="commitTrades()">Execute Trades</button>
+    <button class="modal-btn close" onclick="closeModal('modal-commit')">Cancel</button>
+  </div>
+</div>
 
-            // ===== SCREEN NAVIGATION =====
-            showEntry() {
-                document.getElementById('entryScreen').style.display = 'flex';
-                document.getElementById('createTeamScreen').style.display = 'none';
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('gameScreen').style.display = 'none';
-            },
+<script>
+const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwqHe9k61e1rP6egxcFeGkrHCMggfb-swaMfhUb-5gGUHm6smiaM1QqDCKULl5NzAMo/exec';
+const MAX_ROUNDS = 20;
 
-            showCreateTeam() {
-                document.getElementById('entryScreen').style.display = 'none';
-                document.getElementById('createTeamScreen').style.display = 'flex';
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('gameScreen').style.display = 'none';
-            },
+const ASSETS = [
+  { name: 'Cash', id: 0 },
+  { name: 'ACME Corp', id: 1 },
+  { name: 'Beta Inc', id: 2 },
+  { name: 'Gamma Tech', id: 3 },
+  { name: 'Delta Ltd', id: 4 },
+  { name: 'Epsilon Co', id: 5 },
+  { name: 'Zeta Industries', id: 6 },
+  { name: 'Eta Finance', id: 7 },
+  { name: 'Theta Motors', id: 8 },
+  { name: 'Iota Energy', id: 9 },
+  { name: 'Kappa Media', id: 10 },
+  { name: 'Lambda AI', id: 11 },
+  { name: 'Mu Healthcare', id: 12 },
+  { name: 'Nu Retail', id: 13 },
+  { name: 'Xi Telecom', id: 14 },
+  { name: 'Omicron Bank', id: 15 },
+  { name: 'Pi Pharma', id: 16 },
+  { name: 'Rho Transport', id: 17 },
+  { name: 'Sigma Mining', id: 18 },
+  { name: 'Tau Aerospace', id: 19 },
+  { name: 'Upsilon Food', id: 20 },
+  { name: 'Phi Defense', id: 21 },
+];
 
-            showLoginScreen() {
-                document.getElementById('entryScreen').style.display = 'none';
-                document.getElementById('createTeamScreen').style.display = 'none';
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('gameScreen').style.display = 'none';
-            },
+let state = {
+  activated: false,
+  sessionToken: null,
+  teamName: '',
+  teamId: '',
+  round: 1,
+  quantities: new Array(22).fill(0),
+  prices: {},
+};
 
-            showGame() {
-                document.getElementById('entryScreen').style.display = 'none';
-                document.getElementById('createTeamScreen').style.display = 'none';
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('gameScreen').style.display = 'block';
-            },
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screenId).classList.add('active');
+}
 
-            // ===== TEAM CREATION =====
-            async createTeam(event) {
-                event.preventDefault();
-                const adminPassword = document.getElementById('adminPassword').value;
-                const teamName = document.getElementById('newTeamName').value.trim();
-                const teamPassword = document.getElementById('newTeamPassword').value;
-                const createTeamBtn = document.getElementById('createTeamBtn');
-                const errorDiv = document.getElementById('createTeamError');
+function fmt(n) {
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
-                errorDiv.innerHTML = '';
+function getCurrentPrices() {
+  return state.prices;
+}
 
-                if (!teamName || !teamPassword) {
-                    errorDiv.innerHTML = '<div class="error">❌ All fields are required</div>';
-                    return;
-                }
+async function startGame() {
+  const teamName = document.getElementById('inp-team').value.trim();
+  const password = document.getElementById('inp-pass').value;
+  const err = document.getElementById('welcome-err');
 
-                createTeamBtn.innerHTML = '<span class="loading"></span>Creating...';
-                createTeamBtn.parentElement.disabled = true;
+  err.style.display = 'none';
 
-                try {
-                    const response = await fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            endpoint: '/admin/createTeam',
-                            adminPassword,
-                            teamName,
-                            teamPassword
-                        })
-                    });
+  if (!teamName || !password) {
+    err.textContent = 'Team name and password required';
+    err.style.display = 'block';
+    return;
+  }
 
-                    const data = await response.json();
+  try {
+    const resp = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify({
+        endpoint: '/login',
+        teamName,
+        teamPassword: password
+      })
+    });
 
-                    if (data.success) {
-                        errorDiv.innerHTML = 
-                            `<div class="success">✅ Team created successfully! Your Team ID: ${data.data.teamId}</div>`;
-                        document.getElementById('createTeamForm').reset();
-                        setTimeout(() => {
-                            this.showLoginScreen();
-                        }, 2000);
-                    } else {
-                        errorDiv.innerHTML = 
-                            `<div class="error">❌ ${data.error?.message || 'Team creation failed'}</div>`;
-                    }
-                } catch (error) {
-                    errorDiv.innerHTML = 
-                        `<div class="error">❌ Connection error. Please try again.</div>`;
-                    console.error('Create team error:', error);
-                } finally {
-                    createTeamBtn.innerHTML = 'CREATE TEAM';
-                    createTeamBtn.parentElement.disabled = false;
-                }
-            },
+    const data = await resp.json();
 
-            // ===== AUTHENTICATION =====
-            async login(event) {
-                event.preventDefault();
-                const teamId = document.getElementById('teamId').value.trim();
-                const teamPassword = document.getElementById('teamPassword').value;
-                const loginBtn = document.getElementById('loginBtn');
+    if (!data.success) {
+      err.textContent = data.error?.message || 'Login failed';
+      err.style.display = 'block';
+      return;
+    }
 
-                loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
-                loginBtn.parentElement.disabled = true;
+    state.activated = true;
+    state.sessionToken = data.data.sessionToken;
+    state.teamName = data.data.teamName;
+    state.teamId = data.data.teamId;
+    state.round = data.data.currentRound || 1;
+    state.quantities = Object.keys(data.data.holdings).map(k => data.data.holdings[k]);
+    state.prices = data.data.currentPrices;
 
-                try {
-                    const response = await fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            endpoint: '/login',
-                            teamId,
-                            teamPassword
-                        })
-                    });
+    renderGame();
+    showScreen('game');
+  } catch (e) {
+    err.textContent = 'Connection error: ' + e.message;
+    err.style.display = 'block';
+  }
+}
 
-                    const data = await response.json();
+function renderGame() {
+  document.getElementById('header-team').textContent = state.teamName;
+  document.getElementById('round-badge').textContent = `Round ${state.round}/${MAX_ROUNDS}`;
 
-                    if (data.success && data.data.sessionToken) {
-                        this.sessionToken = data.data.sessionToken;
-                        this.teamId = teamId;
-                        this.teamName = data.data.teamName;
-                        this.currentRound = data.data.currentRound;
-                        this.maxRounds = data.data.maxRounds;
-                        this.currentPrices = data.data.currentPrices;
-                        this.holdings = data.data.holdings;
+  const prices = getCurrentPrices();
+  let portfolioValue = 0;
 
-                        localStorage.setItem('sessionToken', this.sessionToken);
-                        localStorage.setItem('teamId', this.teamId);
-                        localStorage.setItem('teamName', this.teamName);
+  // Build table
+  let html = '';
+  for (let i = 0; i < ASSETS.length; i++) {
+    const asset = ASSETS[i];
+    const qty = state.quantities[i] || 0;
+    const price = i === 0 ? 1 : (prices[i] || 100);
+    const value = qty * price;
+    portfolioValue += value;
 
-                        this.showGame();
-                        this.updateHeader();
-                        this.renderPortfolio();
-                        this.loadLeaderboard();
-                        this.leaderboardRefreshInterval = setInterval(() => this.loadLeaderboard(), 30000);
-                    } else {
-                        document.getElementById('loginError').innerHTML = 
-                            `<div class="error">❌ ${data.error?.message || 'Login failed'}</div>`;
-                    }
-                } catch (error) {
-                    document.getElementById('loginError').innerHTML = 
-                        `<div class="error">❌ Connection error. Check your Team ID and password.</div>`;
-                    console.error('Login error:', error);
-                } finally {
-                    loginBtn.innerHTML = 'LOGIN';
-                    loginBtn.parentElement.disabled = false;
-                }
-            },
+    const buyInp = i === 0 ? '—' : `<input type="number" id="buy-${i}" class="qty-input" min="0" oninput="validateTrades()">`;
+    const sellInp = i === 0 ? '—' : `<input type="number" id="sell-${i}" class="qty-input" min="0" oninput="validateTrades()">`;
 
-            logout() {
-                this.sessionToken = null;
-                this.teamId = null;
-                this.teamName = null;
-                this.pendingTrades = [];
-                localStorage.removeItem('sessionToken');
-                localStorage.removeItem('teamId');
-                localStorage.removeItem('teamName');
-                clearInterval(this.leaderboardRefreshInterval);
-                this.showEntry();
-                document.getElementById('loginForm').reset();
-                document.getElementById('createTeamForm').reset();
-            },
+    const rowClass = i === 0 ? 'cash-row' : '';
+    html += `<tr class="${rowClass}">
+      <td><span class="asset-num">${i}</span>${asset.name}</td>
+      <td class="mono">${i === 0 ? 'N/A' : '$' + price.toFixed(2)}</td>
+      <td class="mono">${qty.toLocaleString()}</td>
+      <td>${buyInp}</td>
+      <td>${sellInp}</td>
+      <td class="mono">${fmt(value)}</td>
+    </tr>`;
+  }
 
-            // ===== PORTFOLIO & PRICES =====
-            async loadPortfolio() {
-                try {
-                    const response = await fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            endpoint: '/portfolio',
-                            sessionToken: this.sessionToken
-                        })
-                    });
+  document.getElementById('assets-body').innerHTML = html;
 
-                    const data = await response.json();
-                    if (data.success) {
-                        this.holdings = data.data.holdings;
-                        this.currentRound = data.data.round;
-                        this.renderPortfolio();
-                        this.updateHeader();
-                    }
-                } catch (error) {
-                    console.error('Load portfolio error:', error);
-                }
-            },
+  // Stats
+  document.getElementById('stat-cash').textContent = fmt(state.quantities[0]);
+  document.getElementById('stat-portfolio').textContent = fmt(portfolioValue - state.quantities[0]);
+  document.getElementById('stat-total').textContent = fmt(portfolioValue);
 
-            async loadPrices() {
-                try {
-                    const response = await fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            endpoint: '/prices',
-                            sessionToken: this.sessionToken
-                        })
-                    });
+  validateTrades();
+}
 
-                    const data = await response.json();
-                    if (data.success) {
-                        this.currentPrices = data.data;
-                    }
-                } catch (error) {
-                    console.error('Load prices error:', error);
-                }
-            },
+function validateTrades() {
+  const btn = document.getElementById('commit-btn');
+  const msg = document.getElementById('val-msg');
+  let errors = [];
 
-            renderPortfolio() {
-                const tbody = document.querySelector('#portfolioTable tbody');
-                tbody.innerHTML = '';
+  let totalBuyCost = 0, totalSellRecv = 0;
 
-                let totalAssetValue = 0;
-                const cash = this.holdings[0] || 0;
+  const prices = getCurrentPrices();
 
-                for (let assetId = 1; assetId <= 21; assetId++) {
-                    const qty = this.holdings[assetId] || 0;
-                    if (qty > 0) {
-                        const price = this.currentPrices[assetId] || 0;
-                        const value = qty * price;
-                        totalAssetValue += value;
+  for (let i = 1; i < ASSETS.length; i++) {
+    const qty = state.quantities[i] || 0;
+    const buy = parseInt(document.getElementById('buy-' + i)?.value) || 0;
+    const sell = parseInt(document.getElementById('sell-' + i)?.value) || 0;
+    const price = prices[i] || 100;
 
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>Asset ${assetId}</td>
-                            <td>${qty.toFixed(0)}</td>
-                            <td>$${price.toFixed(2)}</td>
-                            <td>$${value.toFixed(2)}</td>
-                        `;
-                        tbody.appendChild(row);
-                    }
-                }
+    if (buy < 0 || sell < 0) {
+      errors.push(`Negative quantity on asset ${i}`);
+      break;
+    }
+    if (qty + buy - sell < 0) {
+      errors.push(`Cannot sell more than you own: ${ASSETS[i].name}`);
+      break;
+    }
+    totalBuyCost += buy * price;
+    totalSellRecv += sell * price;
+  }
 
-                const totalValue = totalAssetValue + cash;
-                document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
-                document.getElementById('cashValue').textContent = `$${cash.toFixed(2)}`;
-                document.getElementById('portfolioValue').textContent = `$${totalValue.toFixed(2)}`;
-                document.getElementById('cashBalance').textContent = `$${cash.toFixed(2)}`;
+  const cashQty = state.quantities[0];
+  const netCash = cashQty + totalSellRecv - totalBuyCost;
 
-                this.updateNetCash();
-            },
+  if (netCash < 0) {
+    errors.push('Insufficient cash — net cash goes negative.');
+  }
 
-            updateHeader() {
-                document.getElementById('teamName').textContent = this.teamName;
-                document.getElementById('currentRound').textContent = `${this.currentRound}/${this.maxRounds}`;
-            },
+  if (errors.length) {
+    msg.className = 'validation-msg err';
+    msg.textContent = '✗ ' + errors[0];
+    btn.disabled = true;
+  } else {
+    msg.className = 'validation-msg ok';
+    msg.textContent = '✓ Inputs validated — ready to commit.';
+    btn.disabled = false;
+  }
+}
 
-            // ===== TRADING =====
-            async addTrade(event) {
-                event.preventDefault();
-                const assetId = parseInt(document.getElementById('assetId').value);
-                const action = document.getElementById('action').value;
-                const quantity = parseInt(document.getElementById('quantity').value);
+function showCommitConfirm() {
+  document.getElementById('modal-commit').classList.add('open');
+}
 
-                const errorDiv = document.getElementById('tradeError');
-                errorDiv.innerHTML = '';
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
 
-                if (action === 'SELL') {
-                    const owned = this.holdings[assetId] || 0;
-                    if (quantity > owned) {
-                        errorDiv.innerHTML = `<div class="error">❌ Cannot sell ${quantity}, you only own ${owned}</div>`;
-                        return;
-                    }
-                }
+async function commitTrades() {
+  closeModal('modal-commit');
 
-                this.pendingTrades.push({ assetId, action, quantity });
-                document.getElementById('tradeForm').reset();
-                this.renderPendingTrades();
-            },
+  const prices = getCurrentPrices();
+  let trades = [];
+  let totalBuyCost = 0, totalSellRecv = 0;
 
-            renderPendingTrades() {
-                const tbody = document.getElementById('tradesBody');
-                tbody.innerHTML = '';
+  for (let i = 1; i < ASSETS.length; i++) {
+    const buy = parseInt(document.getElementById('buy-' + i)?.value) || 0;
+    const sell = parseInt(document.getElementById('sell-' + i)?.value) || 0;
 
-                this.pendingTrades.forEach((trade, index) => {
-                    const row = document.createElement('tr');
-                    const actionColor = trade.action === 'BUY' ? '#10b981' : '#ef4444';
-                    row.innerHTML = `
-                        <td>Asset ${trade.assetId}</td>
-                        <td><span style="color: ${actionColor}; font-weight: 600;">${trade.action}</span></td>
-                        <td>${trade.quantity}</td>
-                        <td>
-                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" 
-                                onclick="app.removeTrade(${index})">Remove</button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
+    if (buy > 0) {
+      trades.push({ assetId: i, action: 'BUY', quantity: buy });
+      totalBuyCost += buy * prices[i];
+    }
+    if (sell > 0) {
+      trades.push({ assetId: i, action: 'SELL', quantity: sell });
+      totalSellRecv += sell * prices[i];
+    }
 
-                this.updateNetCash();
-            },
+    state.quantities[i] += buy - sell;
+  }
 
-            removeTrade(index) {
-                this.pendingTrades.splice(index, 1);
-                this.renderPendingTrades();
-            },
+  state.quantities[0] = state.quantities[0] + totalSellRecv - totalBuyCost;
 
-            clearTrades() {
-                this.pendingTrades = [];
-                this.renderPendingTrades();
-            },
+  // Send trades to backend
+  if (trades.length > 0) {
+    try {
+      const resp = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        body: JSON.stringify({
+          endpoint: '/trade',
+          sessionToken: state.sessionToken,
+          trades: trades
+        })
+      });
 
-            updateNetCash() {
-                let totalCost = 0;
-                const cash = this.holdings[0] || 0;
+      const data = await resp.json();
+      if (!data.success) {
+        alert('Trade failed: ' + data.error?.message);
+        return;
+      }
 
-                this.pendingTrades.forEach(trade => {
-                    const price = this.currentPrices[trade.assetId] || 0;
-                    if (trade.action === 'BUY') {
-                        totalCost += trade.quantity * price;
-                    } else {
-                        totalCost -= trade.quantity * price;
-                    }
-                });
+      // Update state from response
+      state.quantities = Object.keys(data.data.holdings).map(k => data.data.holdings[k]);
+    } catch (e) {
+      alert('Trade submission error: ' + e.message);
+      return;
+    }
+  }
 
-                const netCash = cash - totalCost;
-                document.getElementById('netCash').textContent = `$${netCash.toFixed(2)}`;
+  // Advance round
+  state.round++;
 
-                if (netCash < 0) {
-                    document.getElementById('netCashBox').style.color = '#ef4444';
-                } else {
-                    document.getElementById('netCashBox').style.color = '#f1f5f9';
-                }
-            },
+  // Load new prices for next round
+  if (state.round <= MAX_ROUNDS) {
+    try {
+      const resp = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        body: JSON.stringify({
+          endpoint: '/prices',
+          sessionToken: state.sessionToken
+        })
+      });
 
-            async submitTrades() {
-                if (this.pendingTrades.length === 0) {
-                    document.getElementById('tradeError').innerHTML = 
-                        '<div class="error">❌ No trades to submit</div>';
-                    return;
-                }
+      const data = await resp.json();
+      if (data.success) {
+        state.prices = data.data;
+      }
+    } catch (e) {
+      console.error('Error loading prices:', e);
+    }
+  }
 
-                const submitBtn = event.target;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="loading"></span>Submitting...';
+  if (state.round > MAX_ROUNDS) {
+    showFinish();
+  } else {
+    renderGame();
+  }
+}
 
-                try {
-                    const response = await fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            endpoint: '/trade',
-                            sessionToken: this.sessionToken,
-                            trades: this.pendingTrades
-                        })
-                    });
+function showFinish() {
+  const prices = getCurrentPrices();
+  let totalVal = 0;
+  for (let i = 0; i < ASSETS.length; i++) {
+    const price = i === 0 ? 1 : (prices[i] || 100);
+    totalVal += state.quantities[i] * price;
+  }
 
-                    const data = await response.json();
+  document.getElementById('final-val').textContent = fmt(totalVal);
+  document.getElementById('final-team').textContent = 'Team: ' + state.teamName;
+  showScreen('finish');
+}
 
-                    if (data.success) {
-                        this.holdings = data.data.holdings;
-                        this.pendingTrades = [];
-                        document.getElementById('tradeError').innerHTML = 
-                            '<div class="success">✅ Trades submitted successfully!</div>';
-                        this.renderPortfolio();
-                        this.renderPendingTrades();
-                        this.loadLeaderboard();
-                        setTimeout(() => {
-                            document.getElementById('tradeError').innerHTML = '';
-                        }, 3000);
-                    } else {
-                        document.getElementById('tradeError').innerHTML = 
-                            `<div class="error">❌ ${data.error?.message || 'Trade failed'}</div>`;
-                    }
-                } catch (error) {
-                    document.getElementById('tradeError').innerHTML = 
-                        '<div class="error">❌ Connection error. Please try again.</div>';
-                    console.error('Submit trades error:', error);
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Submit Trades';
-                }
-            },
+function logout() {
+  state = {
+    activated: false,
+    sessionToken: null,
+    teamName: '',
+    teamId: '',
+    round: 1,
+    quantities: new Array(22).fill(0),
+    prices: {},
+  };
+  document.getElementById('inp-team').value = '';
+  document.getElementById('inp-pass').value = '';
+  document.getElementById('welcome-err').style.display = 'none';
+  showScreen('welcome');
+}
 
-            // ===== LEADERBOARD =====
-            async loadLeaderboard() {
-                try {
-                    const response = await fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            endpoint: '/leaderboard',
-                            sessionToken: this.sessionToken
-                        })
-                    });
+function newGame() {
+  logout();
+}
+</script>
 
-                    const data = response.json();
-                    if ((await data).success) {
-                        this.renderLeaderboard((await data).data);
-                    }
-                } catch (error) {
-                    console.error('Load leaderboard error:', error);
-                }
-            },
-
-            renderLeaderboard(leaderboard) {
-                const tbody = document.getElementById('leaderboardBody');
-                tbody.innerHTML = '';
-
-                (leaderboard || []).slice(0, 100).forEach((team, index) => {
-                    const row = document.createElement('tr');
-                    const gainColor = team.gain >= 0 ? '#10b981' : '#ef4444';
-                    const gainSign = team.gain >= 0 ? '+' : '';
-                    
-                    row.innerHTML = `
-                        <td><strong>#${index + 1}</strong></td>
-                        <td>${team.teamName}${team.teamId === this.teamId ? ' <span class="badge">YOU</span>' : ''}</td>
-                        <td>$${parseFloat(team.finalValue || 0).toFixed(2)}</td>
-                        <td style="color: ${gainColor};">${gainSign}${parseFloat(team.gain || 0).toFixed(2)}%</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-
-                document.getElementById('lastUpdate').textContent = 
-                    new Date().toLocaleTimeString();
-            }
-        };
-
-        // ===== POPULATE ASSET DROPDOWN =====
-        document.addEventListener('DOMContentLoaded', () => {
-            const select = document.getElementById('assetId');
-            for (let i = 1; i <= 21; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `Asset ${i}`;
-                select.appendChild(option);
-            }
-            app.init();
-        });
-    </script>
 </body>
 </html>
