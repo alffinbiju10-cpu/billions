@@ -166,10 +166,14 @@ h1.game-title span { color: var(--accent); }
 
 /* GAME SCREEN */
 #screen-game {
-  display: none;
+  display: none !important;
   flex-direction: column;
   min-height: 100vh;
   padding: 0;
+}
+
+#screen-game.active {
+  display: flex !important;
 }
 
 .game-header {
@@ -591,8 +595,18 @@ let state = {
 };
 
 function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + screenId).classList.add('active');
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  
+  // Show the target screen
+  const targetScreen = document.getElementById('screen-' + screenId);
+  if (targetScreen) {
+    targetScreen.classList.add('active');
+    targetScreen.style.display = 'flex';
+  }
 }
 
 function fmt(n) {
