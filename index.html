@@ -363,8 +363,49 @@ table.asset-table tr.cash-row td { background: rgba(0,229,160,0.04); }
 </head>
 <body>
 
+<!-- ENTRY SCREEN (Choose Create or Login) -->
+<div id="screen-entry" class="screen active">
+  <div class="logo-ring">
+    <svg viewBox="0 0 24 24" fill="currentColor" color="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+  </div>
+  <h1 class="game-title">BILLIONS</h1>
+  <p class="tagline">Stock Market Simulator</p>
+  <div class="welcome-card">
+    <h2>Welcome</h2>
+    <button class="btn-primary" onclick="showScreen('create')" style="background:var(--accent);margin-bottom:0.8rem;">Create Team</button>
+    <button class="btn-primary" onclick="showScreen('login')" style="background:var(--info);">Login</button>
+  </div>
+</div>
+
+<!-- CREATE TEAM SCREEN -->
+<div id="screen-create" class="screen">
+  <div class="logo-ring">
+    <svg viewBox="0 0 24 24" fill="currentColor" color="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+  </div>
+  <h1 class="game-title">BILLIONS</h1>
+  <p class="tagline">Create New Team</p>
+  <div class="welcome-card">
+    <h2>Create Team</h2>
+    <div class="form-row">
+      <label for="inp-admin-pass">Admin Password</label>
+      <input type="password" id="inp-admin-pass" placeholder="Enter admin password">
+    </div>
+    <div class="form-row">
+      <label for="inp-create-team">Team Name</label>
+      <input type="text" id="inp-create-team" placeholder="e.g., Alpha Team">
+    </div>
+    <div class="form-row">
+      <label for="inp-create-pass">Team Password</label>
+      <input type="password" id="inp-create-pass" placeholder="Create a password">
+    </div>
+    <button class="btn-primary" onclick="createTeam()">Create Team</button>
+    <div id="create-err" class="err-msg"></div>
+    <button class="btn-primary" onclick="showScreen('entry')" style="background:var(--muted);margin-top:0.5rem;">Back</button>
+  </div>
+</div>
+
 <!-- LOGIN SCREEN -->
-<div id="screen-welcome" class="screen active">
+<div id="screen-login" class="screen">
   <div class="logo-ring">
     <svg viewBox="0 0 24 24" fill="currentColor" color="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
   </div>
@@ -382,6 +423,7 @@ table.asset-table tr.cash-row td { background: rgba(0,229,160,0.04); }
     </div>
     <button class="btn-primary" onclick="startGame()">Login</button>
     <div id="welcome-err" class="err-msg"></div>
+    <button class="btn-primary" onclick="showScreen('entry')" style="background:var(--muted);margin-top:0.5rem;">Back</button>
   </div>
 </div>
 
@@ -502,6 +544,55 @@ function showScreen(screenId) {
 
 function fmt(n) {
   return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function createTeam() {
+  const adminPass = document.getElementById('inp-admin-pass').value.trim();
+  const teamName = document.getElementById('inp-create-team').value.trim();
+  const teamPass = document.getElementById('inp-create-pass').value;
+  const err = document.getElementById('create-err');
+
+  err.style.display = 'none';
+
+  if (!adminPass || !teamName || !teamPass) {
+    err.textContent = 'All fields required';
+    err.style.display = 'block';
+    return;
+  }
+
+  try {
+    const resp = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify({
+        endpoint: '/admin/createTeam',
+        adminPassword: adminPass,
+        teamName: teamName,
+        teamPassword: teamPass
+      })
+    });
+
+    const data = await resp.json();
+
+    if (!data.success) {
+      err.textContent = data.error?.message || 'Creation failed';
+      err.style.display = 'block';
+      return;
+    }
+
+    err.style.color = 'var(--accent)';
+    err.textContent = '✓ Team created! ID: ' + data.data.teamId;
+    err.style.display = 'block';
+
+    setTimeout(() => {
+      document.getElementById('inp-admin-pass').value = '';
+      document.getElementById('inp-create-team').value = '';
+      document.getElementById('inp-create-pass').value = '';
+      showScreen('login');
+    }, 2000);
+  } catch (e) {
+    err.textContent = 'Connection error: ' + e.message;
+    err.style.display = 'block';
+  }
 }
 
 function getCurrentPrices() {
