@@ -529,7 +529,10 @@ table.asset-table tr:hover td { background: rgba(255,255,255,0.02); }
       </table>
     </div>
     <div id="val-msg" class="validation-msg"></div>
-    <button class="btn-primary" id="commit-btn" onclick="showCommitConfirm()" disabled>Commit Trades</button>
+    <div style="display: flex; gap: 0.8rem;">
+      <button class="btn-primary" id="validate-btn" onclick="validateAndLock()" style="flex: 1;">Validate Trades</button>
+      <button class="btn-primary" id="commit-btn" onclick="showCommitConfirm()" disabled style="flex: 1;">Commit Trades</button>
+    </div>
   </div>
 </div>
 
@@ -592,6 +595,7 @@ let state = {
   round: 1,
   quantities: new Array(22).fill(0),
   prices: {},
+  validated: false,
 };
 
 function showScreen(screenId) {
@@ -716,6 +720,8 @@ async function startGame() {
 }
 
 function renderGame() {
+  state.validated = false;
+  
   document.getElementById('header-team').textContent = state.teamName;
   document.getElementById('round-badge').textContent = `Round ${state.round}/${MAX_ROUNDS}`;
 
@@ -730,8 +736,8 @@ function renderGame() {
     const value = qty * price;
     portfolioValue += value;
 
-    const buyInp = i === 0 ? '—' : `<input type="number" id="buy-${i}" class="qty-input" min="0" value="0" oninput="validateTrades()">`;
-    const sellInp = i === 0 ? '—' : `<input type="number" id="sell-${i}" class="qty-input" min="0" value="0" oninput="validateTrades()">`;
+    const buyInp = i === 0 ? '—' : `<input type="number" id="buy-${i}" class="qty-input" min="0" value="0">`;
+    const sellInp = i === 0 ? '—' : `<input type="number" id="sell-${i}" class="qty-input" min="0" value="0">`;
 
     const rowClass = i === 0 ? 'cash-row' : '';
     html += `<tr class="${rowClass}">
@@ -750,11 +756,14 @@ function renderGame() {
   document.getElementById('stat-portfolio').textContent = fmt(portfolioValue - state.quantities[0]);
   document.getElementById('stat-total').textContent = fmt(portfolioValue);
 
-  validateTrades();
+  // Reset buttons
+  document.getElementById('validate-btn').disabled = false;
+  document.getElementById('commit-btn').disabled = true;
+  document.getElementById('val-msg').textContent = '';
 }
 
 function validateTrades() {
-  const btn = document.getElementById('commit-btn');
+  const btn = document.getElementById('validate-btn');
   const msg = document.getElementById('val-msg');
   let errors = [];
 
@@ -786,14 +795,42 @@ function validateTrades() {
     errors.push('Insufficient cash.');
   }
 
-  if (errors.length) {
-    msg.className = 'validation-msg err';
-    msg.textContent = '✗ ' + errors[0];
-    btn.disabled = true;
-  } else {
+  // Return validation result (used by validateAndLock)
+  return {
+    valid: errors.length === 0,
+    errors: errors,
+    message: errors.length ? errors[0] : 'All trades valid!'
+  };
+}
+
+function validateAndLock() {
+  const result = validateTrades();
+  const msg = document.getElementById('val-msg');
+  const validateBtn = document.getElementById('validate-btn');
+  const commitBtn = document.getElementById('commit-btn');
+
+  if (result.valid) {
     msg.className = 'validation-msg ok';
-    msg.textContent = '✓ Inputs validated — ready to commit.';
-    btn.disabled = false;
+    msg.textContent = '✓ ' + result.message + ' Ready to commit.';
+    
+    // Lock all input fields
+    for (let i = 1; i < ASSETS.length; i++) {
+      const buyInp = document.getElementById('buy-' + i);
+      const sellInp = document.getElementById('sell-' + i);
+      if (buyInp) buyInp.disabled = true;
+      if (sellInp) sellInp.disabled = true;
+    }
+    
+    // Disable validate button, enable commit button
+    validateBtn.disabled = true;
+    commitBtn.disabled = false;
+    
+    state.validated = true;
+  } else {
+    msg.className = 'validation-msg err';
+    msg.textContent = '✗ ' + result.message;
+    commitBtn.disabled = true;
+    state.validated = false;
   }
 }
 
@@ -895,7 +932,21 @@ function showFinish() {
   }
 
   document.getElementById('final-val').textContent = fmt(totalVal);
-  document.getElementById('final-team').textContent = 'Team: ' + state.teamName;
+  document.getElementById('final-team').textContent = `Team: ${state.teamName} | Final Value: ${fmt(totalVal)}`;
+  
+  // Save final portfolio snapshot to backend
+  try {
+    fetch(API_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify({
+        endpoint: '/portfolio',
+        sessionToken: state.sessionToken
+      })
+    }).catch(e => console.error('Error saving final portfolio:', e));
+  } catch (e) {
+    console.error('Error:', e);
+  }
+  
   showScreen('finish');
 }
 
